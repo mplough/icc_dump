@@ -20,6 +20,7 @@ IGNORE_TAGS = {
     'FileSize',
     'FileType',
     'FileTypeExtension',
+    'MIMEType',
     'SourceFile',
 }
 
@@ -33,7 +34,10 @@ def exiftool_extract_icc(filename):
 
     > Unable to read: 1, icmCurve_read: Wrong tag type for icmCurve
     """
-    command = ['exiftool', '-e', '-j', '-s', str(filename)]
+    # Together, the -u and -U arguments dump unkonwn
+    base_command = ['exiftool', '-e', '-u', '-U']
+
+    command = base_command + ['-j'] + [str(filename)]
     result = subprocess.run(command, capture_output=True, check=True)
 
     icc = json.loads(result.stdout)[0]
@@ -46,7 +50,7 @@ def exiftool_extract_icc(filename):
     for k, v in icc.items():
         if isinstance(v, str) and 'use -b option to extract' in v:
             # replace value with binary data
-            command = ['exiftool', '-b', f'-{k}', str(filename)]
+            command = base_command + ['-b', f'-{k}', str(filename)]
             print(f'   Extracting binary data from tag {k} ...')
             tag_result = subprocess.run(command, capture_output=True, check=True)
             icc[k] = ' '.join(['%02x' % c for c in tag_result.stdout])
