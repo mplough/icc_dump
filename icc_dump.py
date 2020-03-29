@@ -25,7 +25,7 @@ IGNORE_TAGS = {
 }
 
 
-def exiftool_extract_icc(filename):
+def exiftool_extract_icc(filename, hex_ids):
     """Extract all tags from ICC profile and load into dictionary.
 
     Binary tags are dumped as hex.
@@ -34,12 +34,11 @@ def exiftool_extract_icc(filename):
 
     > Unable to read: 1, icmCurve_read: Wrong tag type for icmCurve
     """
-    # Together, the -u and -U arguments dump unkonwn
+    # Together, the -u and -U arguments dump unknown tags
     base_command = ['exiftool', '-e', '-u', '-U']
-
-    command = base_command + ['-j'] + [str(filename)]
+    hex_id_arg = ['-hex'] if hex_ids else []
+    command = base_command + ['-j'] + hex_id_arg + [str(filename)]
     result = subprocess.run(command, capture_output=True, check=True)
-
     icc = json.loads(result.stdout)[0]
 
     # remove ignored tags
@@ -48,20 +47,27 @@ def exiftool_extract_icc(filename):
 
     # Grab binary data from ICC
     for k, v in icc.items():
+        if hex_ids:
+            v = v['val']
         if isinstance(v, str) and 'use -b option to extract' in v:
             # replace value with binary data
             command = base_command + ['-b', f'-{k}', str(filename)]
             print(f'   Extracting binary data from tag {k} ...')
             tag_result = subprocess.run(command, capture_output=True, check=True)
-            icc[k] = ' '.join(['%02x' % c for c in tag_result.stdout])
+            hexdump = ' '.join(['%02x' % c for c in tag_result.stdout])
+            if hex_ids:
+                icc[k]['val'] = hexdump
+            else:
+                icc[k] = hexdump
 
     return icc
 
 
 @click.command()
+@click.option('--hex-ids', is_flag=True, help='Include tag hex IDs in output')
 @click.argument('profile_dir')
 @click.argument('output_dir')
-def click_main(profile_dir, output_dir):
+def click_main(profile_dir, output_dir, hex_ids):
     profile_dir = pathlib.Path(profile_dir)
     output_dir = pathlib.Path(output_dir)
 
@@ -69,7 +75,7 @@ def click_main(profile_dir, output_dir):
         dumped_path = output_dir / (input_icc_path.stem + '.json')
         print(f'Dumping {input_icc_path} to {dumped_path} ...')
 
-        icc = exiftool_extract_icc(input_icc_path)
+        icc = exiftool_extract_icc(input_icc_path, hex_ids)
 
         with open(dumped_path, 'w') as out:
             json.dump(icc, out, sort_keys=True, indent=4)
