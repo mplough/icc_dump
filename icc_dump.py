@@ -7,15 +7,17 @@ import subprocess
 import click
 
 
-# These tags are information about a file, rather than information _in_ the file
+# These tags are information about a file, rather than information _in_ the file.
 # We care only about file contents when comparing files.
 IGNORE_TAGS = {
     'Directory',
+    'ExifToolVersion',
     'FileAccessDate',
     'FileInodeChangeDate',
     'FileModifyDate',
     'FileName',
     'FilePermissions',
+    'FileSize',
     'FileType',
     'FileTypeExtension',
     'SourceFile',
