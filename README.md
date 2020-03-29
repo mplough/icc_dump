@@ -50,3 +50,6 @@ python icc_dump.py profiles/ dump/
 ```
 
 Sample profiles are included.
+
+# Limitations
+Nonstandard profile tags, e.g. `vcgp`, are not dumped.
