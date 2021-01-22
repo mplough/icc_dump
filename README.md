@@ -33,7 +33,7 @@ This quick-and-dirty utility wraps ExifTool to do the following:
 
 On macOS, install ExifTool with with [Homebrew](https://brew.sh/):
 ```bash
-brew install ragel
+brew install exiftool
 ```
 
 # Usage
