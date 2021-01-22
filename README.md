@@ -27,7 +27,7 @@ This quick-and-dirty utility wraps ExifTool to do the following:
   interpretation.
 
 # Dependencies
-* Python
+* Python 3
 * [Click](https://click.palletsprojects.com/en/7.x/)
 * [ExifTool](https://exiftool.org/)
 
@@ -46,7 +46,7 @@ Usage: icc_dump.py PROFILE_DIR OUTPUT_DIR
 For example:
 
 ```bash
-python icc_dump.py profiles/ dump/
+./icc_dump.py profiles/ dump/
 ```
 
 Sample profiles are included.

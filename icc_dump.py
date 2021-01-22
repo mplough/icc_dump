@@ -71,6 +71,7 @@ def click_main(profile_dir, output_dir, hex_ids):
     profile_dir = pathlib.Path(profile_dir)
     output_dir = pathlib.Path(output_dir)
 
+    output_dir.mkdir(parents=True, exist_ok=True)
     for input_icc_path in profile_dir.glob('*.icc'):
         dumped_path = output_dir / (input_icc_path.stem + '.json')
         print(f'Dumping {input_icc_path} to {dumped_path} ...')
